@@ -1,0 +1,9 @@
+isbn,title,author,price,stock,category,description
+978-0-13-110362-7,The C Programming Language,Brian W. Kernighan,79.99,15,Programming,Classic programming book covering the C language fundamentals
+978-0-201-61622-4,The Pragmatic Programmer,Andrew Hunt,59.99,12,Programming,Essential guide for software development best practices
+978-0-596-00712-6,Learning Perl,Randal L. Schwartz,54.99,8,Programming,Comprehensive introduction to Perl programming language
+978-1-491-95243-4,Python Data Science Handbook,Jake VanderPlas,64.99,20,Data Science,Complete guide to data science with Python and Jupyter
+978-1-449-33761-3,Eloquent JavaScript,Marijn Haverbeke,39.99,25,Programming,Modern JavaScript programming from first principles
+978-0-134-49416-4,Clean Code,Robert C. Martin,49.99,18,Software Design,A handbook of agile software craftsmanship and best practices
+978-1-491-95243-4,Machine Learning Basics,Andrew Ng,69.99,10,Machine Learning,Introduction to machine learning algorithms and applications
+978-0-321-13616-0,Design Patterns,Gang of Four,54.99,14,Software Design,Elements of reusable object-oriented software

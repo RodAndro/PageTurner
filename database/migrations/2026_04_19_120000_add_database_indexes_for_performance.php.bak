@@ -1,0 +1,188 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     * 
+     * Adds indexes for frequent query patterns to optimize performance.
+     * These indexes target read-heavy operations that benefit from read/write splitting.
+     */
+    public function up(): void
+    {
+        // Books table indexes
+        Schema::table('books', function (Blueprint $table) {
+            // ISBN lookups (common in detail views and searches)
+            if (!Schema::hasColumn('books', 'isbn')) {
+                $table->index('isbn');
+            } else {
+                // Add index if column exists but no index yet
+                $table->index('isbn');
+            }
+            
+            // Category filtering (common for category browsing)
+            $table->index('category_id');
+            
+            // Created_at for sorting and filtering
+            $table->index('created_at');
+        });
+
+        // Orders table indexes
+        Schema::table('orders', function (Blueprint $table) {
+            // User orders lookup (common for dashboard and order history)
+            $table->index('user_id');
+            
+            // Order date filtering (for date range queries and analytics)
+            $table->index('created_at');
+            
+            // Status filtering (for order status queries and dashboards)
+            $table->index('status');
+            
+            // Composite index for user + status queries
+            $table->index(['user_id', 'status']);
+        });
+
+        // Order items table indexes
+        Schema::table('order_items', function (Blueprint $table) {
+            // Order lookup
+            $table->index('order_id');
+            
+            // Book lookup
+            $table->index('book_id');
+        });
+
+        // Reviews table indexes
+        Schema::table('reviews', function (Blueprint $table) {
+            // User reviews lookup
+            $table->index('user_id');
+            
+            // Book reviews lookup (for rating calculations and reviews display)
+            $table->index('book_id');
+            
+            // User + Book composite for checking if user reviewed
+            $table->index(['user_id', 'book_id']);
+            
+            // Rating filtering for best-sellers and top-rated
+            $table->index('rating');
+        });
+
+        // Categories table indexes
+        Schema::table('categories', function (Blueprint $table) {
+            // Category lookup by name (for category browsing)
+            $table->index('name');
+        });
+
+        // Audit logs table indexes (for audit trail queries)
+        if (Schema::hasTable('audit_logs')) {
+            Schema::table('audit_logs', function (Blueprint $table) {
+                // User action tracking
+                $table->index('user_id');
+                
+                // Action type filtering
+                $table->index('action');
+                
+                // Entity tracking (which entity was changed)
+                $table->index('entity_type');
+                
+                // Date range queries for audit reports
+                $table->index('created_at');
+                
+                // Composite index for common audit queries
+                $table->index(['entity_type', 'entity_id', 'created_at']);
+                
+                // Composite index for user activity tracking
+                $table->index(['user_id', 'action', 'created_at']);
+            });
+        }
+
+        // Import/Export logs table indexes
+        if (Schema::hasTable('import_export_logs')) {
+            Schema::table('import_export_logs', function (Blueprint $table) {
+                // User operation tracking
+                $table->index('user_id');
+                
+                // Operation type filtering
+                $table->index('operation_type');
+                
+                // Date range queries
+                $table->index('created_at');
+            });
+        }
+
+        // Backup logs table indexes
+        if (Schema::hasTable('backup_logs')) {
+            Schema::table('backup_logs', function (Blueprint $table) {
+                // Status tracking
+                $table->index('status');
+                
+                // Date range queries
+                $table->index('created_at');
+            });
+        }
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('books', function (Blueprint $table) {
+            $table->dropIndex(['isbn']);
+            $table->dropIndex(['category_id']);
+            $table->dropIndex(['created_at']);
+        });
+
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropIndex(['user_id']);
+            $table->dropIndex(['created_at']);
+            $table->dropIndex(['status']);
+            $table->dropIndex(['user_id', 'status']);
+        });
+
+        Schema::table('order_items', function (Blueprint $table) {
+            $table->dropIndex(['order_id']);
+            $table->dropIndex(['book_id']);
+        });
+
+        Schema::table('reviews', function (Blueprint $table) {
+            $table->dropIndex(['user_id']);
+            $table->dropIndex(['book_id']);
+            $table->dropIndex(['user_id', 'book_id']);
+            $table->dropIndex(['rating']);
+        });
+
+        Schema::table('categories', function (Blueprint $table) {
+            $table->dropIndex(['name']);
+        });
+
+        if (Schema::hasTable('audit_logs')) {
+            Schema::table('audit_logs', function (Blueprint $table) {
+                $table->dropIndex(['user_id']);
+                $table->dropIndex(['action']);
+                $table->dropIndex(['entity_type']);
+                $table->dropIndex(['created_at']);
+                $table->dropIndex(['entity_type', 'entity_id', 'created_at']);
+                $table->dropIndex(['user_id', 'action', 'created_at']);
+            });
+        }
+
+        if (Schema::hasTable('import_export_logs')) {
+            Schema::table('import_export_logs', function (Blueprint $table) {
+                $table->dropIndex(['user_id']);
+                $table->dropIndex(['operation_type']);
+                $table->dropIndex(['created_at']);
+            });
+        }
+
+        if (Schema::hasTable('backup_logs')) {
+            Schema::table('backup_logs', function (Blueprint $table) {
+                $table->dropIndex(['status']);
+                $table->dropIndex(['created_at']);
+            });
+        }
+    }
+};
